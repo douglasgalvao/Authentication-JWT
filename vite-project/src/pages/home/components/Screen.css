@@ -1,6 +1,7 @@
 .screenMain{
     width: 100vw;
     height:100vh;
-    background-color: rgba(172, 166, 166, 0.158);
-    background-image: url("https://i.pinimg.com/originals/88/15/63/881563d6444b370fa4ceea0c3183bb4c.gif");
+    background: linear-gradient(79deg, rgba(109,118,119,1) 4%, rgba(176,214,227,1) 100%);
+    background-repeat: no-repeat;
+    background-size: 100vw 100vh;
 }
