@@ -1,0 +1,11 @@
+version: "3.9"
+
+services:
+  db: 
+    image: postgres
+    ports: 
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=MYSQL110698
+      - POSTGRES_DB=auth
+      - POSTGRES_USER=root
