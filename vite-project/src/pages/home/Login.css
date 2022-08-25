@@ -11,7 +11,7 @@
   padding: 2rem;
   justify-content: center;
   border-radius: 10px;
-  background-color: rgba(151, 191, 243, 0.63);
+  background-color: rgba(0, 0, 0, 0.26);
 }
 
 
@@ -21,11 +21,14 @@
   width: 80%;
   justify-self: center;
   padding: 8px 0px;
+  border-style: none;
   color:white;
   font-size: large;
-  background-color: rgb(26, 24, 24);
+  background-color: rgb(5, 85, 171);
 }
-
+.btnLogin:hover{
+  background-color: rgba(108, 143, 182, 0.753);
+}
 
 .formLogin input{
   margin:3px 0px;
@@ -69,3 +72,7 @@
   border-style: groove;
 }
 
+.authJWTh1{
+  color:rgba(255, 255, 255, 0.918);
+  text-align: center;
+}
