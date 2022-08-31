@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import express, { json, NextFunction, Request, Response } from "express";
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
-require('crypto').randomBytes(64).toString('hex')
+const cryp = require("bcryptjs");
 const app = express();
 const prisma = new PrismaClient();
 type Token = {
@@ -11,7 +11,6 @@ type Token = {
 }
 export function tokenValid(token: Token) {
     console.log(jwt.verify(token, process.env.JWT_SECRET));
-
 }
 
 
@@ -30,17 +29,18 @@ export function auth(req: Request, res: Response, next: NextFunction) {
 }
 
 function generateAccessToken(id: any) {
-    const firstToken = jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '2s', subject: "webToken to authenticate" });
+    const firstToken = jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '1800s', subject: "webToken to authenticate" });
     const refreshToken = jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '86400s', subject: "webToken to authenticate" });
     return { firstToken, refreshToken };
 }
 
 app.post("/createUser", async (req: Request, res: Response) => {
     const usuario = req.body;
+    const salt = cryp.genSaltSync(10);
     const user = await prisma.user.create({
         data: {
             username: usuario.username,
-            password: usuario.password,
+            password: cryp.hashSync(usuario.password,salt),
             email: usuario.email
         }
     })
@@ -54,7 +54,7 @@ app.post("/createUser", async (req: Request, res: Response) => {
     });
 });
 
-app.get("/getUsers", auth, async (req: Request, res: Response) => {
+app.get("/getUsers", async (req: Request, res: Response) => {
     const user = await prisma.user.findMany();
     res.json(user);
 });
@@ -99,7 +99,7 @@ app.get("/getUserT", auth, async (req: Request, res: Response) => {
 app.put("/updateUser", auth, async (req: Request, res: Response) => {
     const users = await prisma.user.findMany();
     try {
-        const updateUser = await prisma.user.update({
+        await prisma.user.update({
             where: {
                 id: req.body.id,
             },
@@ -149,12 +149,11 @@ app.post("/login", async (req: Request, res: Response) => {
             },
         });
         if (!user) {
-            return res.json({ response: "User not found!" });
+            return res.json({ response: "Wrong password , try again" });
         }
-        if (user.password != req.body.password) {
+        if (!cryp.compareSync(req.body.password,user.password)) {
             return res.json({ data: "Wrong password , try again" }).status(401);
-        }
-        if (user && user.password === req.body.password) {
+        }else{
             const { firstToken, refreshToken } = generateAccessToken(user.id);
             return res.json({ responseText: "You just logged in!", token: { firstToken, refreshToken } });
         }
@@ -168,7 +167,7 @@ app.post("/refreshAuth", (req: Request, res: Response) => {
         const payload = jwt.verify(token, process.env.JWT_SECRET);
         const { firstToken, refreshToken } = generateAccessToken(payload.id);
         return res.status(200).json({ firstToken, refreshToken });
-    }catch(e){
+    } catch (e) {
         return res.status(401).json({ error: "Refresh TOKEN EXPIRADO!" })
     }
 });
