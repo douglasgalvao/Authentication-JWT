@@ -26,7 +26,7 @@ type Usuario = {
 const UserContext = createContext({} as dataContext);
 
 export const ContextProvider: React.FC<ExampleContextProps> = ({
-  children,
+  children
 }) => {
   const navegate = useNavigate();
   const [usuario, funcUsuario] = useState<Usuario | null>(null);
@@ -37,7 +37,6 @@ export const ContextProvider: React.FC<ExampleContextProps> = ({
         email: user,
         password: password,
       });
-      console.log(validate);
       if (
         validate &&
         validate.data &&
@@ -47,7 +46,7 @@ export const ContextProvider: React.FC<ExampleContextProps> = ({
         setCookie(null, "refreshToken", validate.data.token.refreshToken);
         let idUser = await api.get("getUserT");
         funcUsuario(idUser.data.user);
-        navegate("/home");
+        navegate("/signIn");
       }
       return;
     } catch (e) {
